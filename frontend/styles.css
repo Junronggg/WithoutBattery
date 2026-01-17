@@ -799,7 +799,7 @@ body.light-theme .user-msg {
 
 .ai-msg {
   background: rgba(99, 102, 241, 0.1);
-  color: #e0e7ff;
+  color: #6366f1; /* 深紫色，更易读 */
   align-self: flex-start;
   border-bottom-left-radius: 4px;
   border: 1px solid rgba(99, 102, 241, 0.3);
