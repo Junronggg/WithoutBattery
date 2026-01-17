@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Procrastination Chat AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="warning-overlay" style="display: none;">
@@ -17,6 +17,7 @@
         <div class="brand">
             <span class="brand-icon"></span>
             <span class="brand-text">WithoutBattery</span>
+            <button id="crazy-btn" class="crazy-emoji-btn" aria-label="Crazy mode">👹</button>
         </div>
         <nav class="top-nav">
             <a class="nav-link" href="#home">Home</a>
@@ -36,7 +37,7 @@
         <div class="wave wave-1"></div>
         <div class="wave wave-2"></div>
         <div class="wave wave-3"></div>
-        
+
         <!-- Dark theme: Spiders and webs -->
         <div class="spider-web web-1"></div>
         <div class="spider-web web-2"></div>
@@ -44,7 +45,7 @@
         <div class="spider spider-1">🕷️</div>
         <div class="spider spider-2">🕷️</div>
         <div class="spider spider-3">🕷️</div>
-        
+
         <!-- Light theme: Pumpkins and ghosts -->
         <div class="pumpkin pumpkin-1">🎃</div>
         <div class="pumpkin pumpkin-2">🎃</div>
@@ -59,7 +60,7 @@
                 <!-- Border crawlers -->
                 <div class="border-crawler spider-crawler">🕷️</div>
                 <div class="border-crawler skull-crawler">☠️</div>
-                
+
                 <header class="chat-header">
                     <div class="chat-header-left">
                         <span class="status-dot"></span>
@@ -105,7 +106,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="{{ url_for('static', filename='main.js') }}"></script>
-
+    <script src="main.js"></script>
 </body>
 </html>
