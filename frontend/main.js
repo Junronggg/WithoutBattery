@@ -433,9 +433,7 @@ async function sendMessage() {
     try {
         const res = await fetch("http://localhost:5000/ask", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ question: msg })
         });
 
@@ -444,15 +442,43 @@ async function sendMessage() {
         const lastAI = messagesContainer.querySelector(".ai-msg:last-child");
         if (lastAI && lastAI.innerText === "🤖 AI is thinking...") lastAI.remove();
 
-        addMessage(data.answer, "ai-msg");
+        if (data.status === "ok") {
+            // Good question → show AI answer
+            addMessage(data.answer, "ai-msg");
+        } else if (data.status === "bad_question") {
+            // Bad question → show guidance
+            const guidance = data.guidance;
+            let guidanceText = `⚠️ Your question is unclear: ${guidance.reason}\nTips:\n`;
+            guidance.tips.forEach((tip, i) => {
+                guidanceText += `${i + 1}. ${tip}\n`;
+            });
+
+            if (guidance.command) {
+                guidanceText += `Suggested command: ${guidance.command} (click to insert)`;
+            }
+
+            addMessage(guidanceText, "ai-msg");
+
+            // Make suggested command clickable
+            if (guidance.command) {
+                const lastMsg = messagesContainer.querySelector(".ai-msg:last-child");
+                lastMsg.style.cursor = "pointer";
+                lastMsg.style.color = "blue";
+                lastMsg.addEventListener("click", () => {
+                    userInput.value = guidance.command + " ";
+                    userInput.focus();
+                });
+            }
+        }
     } catch (err) {
         const lastAI = messagesContainer.querySelector(".ai-msg:last-child");
         if (lastAI && lastAI.innerText === "🤖 AI is thinking...") lastAI.remove();
 
-        // Fallback to local response if backend is unavailable.
+        // Fallback local response
         addMessage(getAIResponse(msg), "ai-msg");
     }
 }
+
 function addMessage(text, className) {
     const msgDiv = document.createElement("div");
     msgDiv.className = `message ${className}`;
@@ -460,6 +486,7 @@ function addMessage(text, className) {
     messagesContainer.appendChild(msgDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
+
 function getAIResponse(q) {
     return q.split(" ").length < 3 ? "I refuse to answer 😏" : "This is a proper AI response 👍";
 }

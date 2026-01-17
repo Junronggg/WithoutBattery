@@ -2,63 +2,101 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-from openai import OpenAI  # new interface
+from openai import OpenAI
+import json
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 print("OPENAI_API_KEY:", OPENAI_API_KEY)
 
 # Initialize OpenAI client
-
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 app = Flask(__name__)
-CORS(app)  # allow frontend to call backend
+CORS(app)
 
-# --- Helper: check if question is "good" ---
-def is_good_question(prompt):
-    prompt = prompt.lower()
-    role_keywords = ["act as", "explain like", "/eli5"]
-    objective_keywords = ["write", "generate", "summarize", "analyze", "create", "explain"]
-    context_keywords = ["for", "assuming", "targeting", "audience"]
-    format_keywords = ["table", "bullet", "/checklist", "/step-by-step", "under", "words", "columns"]
-    example_keywords = ["example", "like this paragraph", "[paste example]"]
+# --- Helper: ask LLM to judge question ---
+def get_question_guidance(question):
+    """
+    Uses GPT to check if the question is good or bad, and provide tips and suggested improved questions.
+    """
+    prompt = f"""
+    You are a strict assistant that only allows good questions.
+    A good question must be:
+      - Specific and detailed
+      - Clear and actionable
+      - Include context, audience, or desired format if needed
 
-    score = sum([
-        any(word in prompt for word in role_keywords),
-        any(word in prompt for word in objective_keywords),
-        any(word in prompt for word in context_keywords),
-        any(word in prompt for word in format_keywords),
-        any(word in prompt for word in example_keywords)
-    ])
-    return score >= 1  # allow more natural questions
+    For the user question: "{question}"
+    1. Decide if it is GOOD or BAD.
+    2. If BAD, explain briefly why it is too vague or general.
+    3. Provide 1-2 concrete tips to improve it, with examples of well-phrased questions.
+    Respond in strict JSON format like:
+    {{
+        "status": "GOOD" or "BAD",
+        "reason": "...",
+        "tips": ["...", "..."]
+    }}
+    """
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=250,
+            temperature=0
+        )
+
+        guidance_text = response.choices[0].message.content
+        guidance_json = json.loads(guidance_text)  # parse JSON
+        return guidance_json
+    except Exception as e:
+        print("Error getting guidance:", e)
+        # fallback if JSON fails
+        return {
+            "status": "BAD",
+            "reason": "Could not parse guidance",
+            "tips": ["Make your question specific and actionable."]
+        }
 
 # --- API route ---
 @app.route("/ask", methods=["POST"])
 def ask():
     data = request.json
-    print("Received POST /ask with data:", data)  # debug
-    question = data.get("question", "")
+    question = data.get("question", "").strip()
+    print("Received question:", question)
 
-    if not is_good_question(question):
+    if not question:
         return jsonify({
-            "answer": "🤖 Your question is too vague or unclear. Try adding a role, context, or format!"
+            "status": "bad_question",
+            "guidance": {
+                "status": "BAD",
+                "reason": "You sent an empty question.",
+                "tips": ["Type a specific question about a topic you want to learn."]
+            }
         })
 
-    try:
+    # Step 1: Check if question is good
+    guidance = get_question_guidance(question)
 
-        # New OpenAI API call
+    if guidance["status"] == "BAD":
+        return jsonify({
+            "status": "bad_question",
+            "guidance": guidance
+        })
+
+    # Step 2: Question is GOOD → call GPT to answer
+    try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": question}],
-            max_tokens=300,
+            max_tokens=400,
             temperature=0.7
         )
-
         answer = response.choices[0].message.content
-        return jsonify({"answer": answer})
+        return jsonify({"status": "ok", "answer": answer})
     except Exception as e:
-        return jsonify({"answer": f"⚠️ Error calling GPT API: {str(e)}"})
+        return jsonify({"status": "error", "answer": f"⚠️ GPT API error: {str(e)}"})
 
 
 if __name__ == "__main__":
