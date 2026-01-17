@@ -70,7 +70,7 @@ body::after {
 #app {
   width: clamp(320px, 95vw, 900px);
   height: clamp(500px, 85vh, 750px);
-  background: #ffffff;
+  background: #f1f5f9; /* 浅灰蓝色背景，与消息区域协调 */
   display: flex;
   flex-direction: column;
   border-radius: clamp(12px, 1.5vw, 20px);
@@ -83,6 +83,34 @@ body::after {
   animation: none;
   margin: clamp(20px, 5vw, 80px) auto clamp(10px, 2.5vw, 40px);
   transform-origin: center;
+  transition: width 0.3s ease, height 0.3s ease, margin 0.3s ease, border-radius 0.3s ease, box-shadow 0.3s ease;
+  z-index: 100;
+}
+
+#app.expanded {
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  z-index: 10000 !important;
+  box-shadow: none !important;
+  background: #f1f5f9 !important; /* 与正常模式背景协调 */
+}
+
+body.light-theme #app.expanded {
+  background: #fef2f2 !important; /* Light模式全屏背景 */
+}
+
+/* 全屏时隐藏摄像头和timer */
+body:has(#app.expanded) #floating-timer,
+body:has(#app.expanded) #camera-feed {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.3s ease !important;
 }
 
 /* Border crawlers - spiders and skulls */
@@ -225,6 +253,46 @@ body.light-theme .brand-text {
   letter-spacing: 0.5px;
 }
 
+.crazy-emoji-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 8px;
+  opacity: 1;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: auto;
+  user-select: none;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.crazy-emoji-btn:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 8px rgba(138, 43, 226, 0.6));
+}
+
+body.crazy-mode .crazy-emoji-btn {
+  opacity: 1;
+  pointer-events: none; /* 即使显示也不可点击 */
+  cursor: not-allowed;
+  animation: crazy-emoji-pulse 1.5s ease-in-out infinite;
+  transform: scale(1);
+}
+
+@keyframes crazy-emoji-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 5px rgba(138, 43, 226, 0.5));
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 15px rgba(138, 43, 226, 0.8));
+  }
+}
+
 .top-nav {
   display: flex;
   gap: 24px;
@@ -320,8 +388,10 @@ body.light-theme .brand-text {
   justify-content: center;
   cursor: pointer;
   font-size: 1.2rem;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease, width 0.3s ease, height 0.3s ease, font-size 0.3s ease;
   padding: 0;
+  z-index: 10001;
+  position: relative;
 }
 
 .expand-btn:hover {
@@ -339,6 +409,63 @@ body.light-theme .expand-btn:hover {
 
 .expand-btn:active {
   transform: scale(0.95);
+}
+
+.expand-btn.expanded {
+  background: #ef4444 !important;
+  width: 60px !important;
+  height: 60px !important;
+  font-size: 2.2rem !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.6), 0 0 0 4px rgba(255, 255, 255, 0.3) !important;
+  border: 3px solid #ffffff !important;
+  animation: pulse-close-btn 2s ease-in-out infinite !important;
+}
+
+.expand-btn.expanded:hover {
+  background: #dc2626 !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 10px 28px rgba(239, 68, 68, 0.8), 0 0 0 5px rgba(255, 255, 255, 0.4) !important;
+}
+
+@keyframes pulse-close-btn {
+  0%, 100% {
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5), 0 0 0 3px rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.7), 0 0 0 5px rgba(239, 68, 68, 0.4);
+  }
+}
+
+body.light-theme .expand-btn.expanded {
+  background: #dc2626;
+}
+
+body.light-theme .expand-btn.expanded:hover {
+  background: #b91c1c;
+}
+
+/* 全屏时确保chat-header和按钮可见 */
+#app.expanded .chat-header {
+  position: relative !important;
+  z-index: 10002 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#app.expanded .chat-header-left {
+  display: none !important;
+}
+
+#app.expanded .expand-btn {
+  position: fixed !important;
+  top: 60px !important;
+  right: 30px !important;
+  z-index: 10003 !important;
+  margin: 0 !important;
 }
 
 /* --- 计时器/状态栏升级 --- */
@@ -440,6 +567,82 @@ body.light-theme .expand-btn:hover {
   box-shadow: var(--neon-glow);
 }
 
+/* Crazy模式暗紫色主题 */
+body.crazy-mode {
+  background: linear-gradient(180deg, #2d1b3d 0%, #1a0d26 50%, #0d0513 100%) !important;
+}
+
+body.crazy-mode::before {
+  background: radial-gradient(100% 60% at 50% 100%, rgba(138, 43, 226, 0.15), transparent 70%),
+    radial-gradient(120% 80% at 50% 100%, rgba(75, 0, 130, 0.1), transparent 75%),
+    repeating-linear-gradient(45deg, rgba(138, 43, 226, 0.05) 0 2px, transparent 2px 10px);
+  mix-blend-mode: screen;
+  opacity: 0.4;
+}
+
+body.crazy-mode .site-header {
+  background: rgba(45, 27, 61, 0.95) !important;
+  border-bottom-color: rgba(138, 43, 226, 0.3) !important;
+}
+
+body.crazy-mode #app {
+  background: rgba(45, 27, 61, 0.9) !important;
+  border: 2px solid rgba(138, 43, 226, 0.3) !important;
+  box-shadow: 0 10px 40px rgba(138, 43, 226, 0.3) !important;
+}
+
+body.crazy-mode .chat-header {
+  background: rgba(26, 13, 38, 0.95) !important;
+  border-bottom: 1px solid rgba(138, 43, 226, 0.3) !important;
+  color: #4c1d95 !important; /* 深紫色文字 */
+}
+
+body.crazy-mode .chat-header h1 {
+  color: #9333ea !important; /* 中等深度紫色，不要太深 */
+}
+
+body.crazy-mode #messages {
+  color: #4c1d95 !important; /* 深紫色文字 */
+}
+
+body.crazy-mode .user-msg {
+  background: rgba(138, 43, 226, 0.3) !important;
+  border: 1px solid rgba(138, 43, 226, 0.5) !important;
+  color: #4c1d95 !important; /* 深紫色文字 */
+}
+
+body.crazy-mode .ai-msg {
+  background: rgba(75, 0, 130, 0.2) !important;
+  border: 1px solid rgba(138, 43, 226, 0.4) !important;
+  color: #5b21b6 !important; /* 深紫色文字 */
+}
+
+body.crazy-mode #user-input {
+  background: rgba(26, 13, 38, 0.8) !important;
+  border-color: rgba(138, 43, 226, 0.5) !important;
+  color: #a855f7 !important; /* 中等深度紫色，不要太深 */
+}
+
+body.crazy-mode #user-input::placeholder {
+  color: #9333ea !important; /* placeholder颜色 */
+}
+
+body.crazy-mode #user-input:focus {
+  border-color: rgba(138, 43, 226, 0.8) !important;
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.4) !important;
+}
+
+body.crazy-mode #send-btn {
+  background: rgba(138, 43, 226, 0.6) !important;
+  border-color: rgba(138, 43, 226, 0.8) !important;
+  color: #ffffff !important;
+}
+
+body.crazy-mode #send-btn:hover {
+  background: rgba(138, 43, 226, 0.8) !important;
+  box-shadow: 0 0 20px rgba(138, 43, 226, 0.6) !important;
+}
+
 #theme-toggle,
 .lang-btn {
   background: rgba(255, 255, 255, 0.1);
@@ -488,6 +691,13 @@ body.light-theme .expand-btn:hover {
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
   background: #000;
+  cursor: grab;
+  user-select: none;
+  transition: opacity 0.3s ease;
+}
+
+#camera-feed.dragging {
+  cursor: grabbing;
 }
 body.light-theme #camera-feed {
   border-color: #e8def8;
@@ -555,6 +765,7 @@ body.light-theme #camera-feed {
   padding: 20px;
   min-height: 0; /* 确保flex子元素可以缩小 */
   scroll-behavior: smooth; /* 平滑滚动 */
+  background: #f8fafc; /* 浅灰蓝色背景，更柔和 */
   /* 使用系统默认滚动条 */
 }
 
@@ -587,20 +798,20 @@ body.light-theme .user-msg {
 }
 
 .ai-msg {
-  background: #f3f4f6;
-  color: #1f2937;
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1; /* 深紫色，更易读 */
   align-self: flex-start;
   border-bottom-left-radius: 4px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(99, 102, 241, 0.3);
 }
 
 /* 输入框区域 */
 #input-container {
   display: flex;
   gap: clamp(8px, 0.8vw, 12px);
-  background: #ffffff;
+  background: #f8fafc; /* 与消息区域背景协调 */
   padding: clamp(15px, 1.5vw, 20px) clamp(18px, 1.8vw, 24px);
-  border-top: clamp(0.5px, 0.1vw, 1px) solid #e5e7eb;
+  border-top: clamp(0.5px, 0.1vw, 1px) solid rgba(148, 163, 184, 0.3);
   flex-shrink: 0;
   border-radius: 0 0 clamp(12px, 1.5vw, 20px) clamp(12px, 1.5vw, 20px);
 }
@@ -752,7 +963,7 @@ body.light-theme #user-input:focus {
   height: 200px;
   opacity: 0.2;
   pointer-events: none;
-  background-image: 
+  background-image:
     radial-gradient(circle at center, transparent 15%, rgba(255, 255, 255, 0.12) 15%, rgba(255, 255, 255, 0.12) 20%, transparent 20%),
     linear-gradient(0deg, transparent 48%, rgba(255, 255, 255, 0.12) 48%, rgba(255, 255, 255, 0.12) 52%, transparent 52%),
     linear-gradient(45deg, transparent 48%, rgba(255, 255, 255, 0.12) 48%, rgba(255, 255, 255, 0.12) 52%, transparent 52%),
@@ -817,20 +1028,20 @@ body.light-theme #user-input:focus {
 }
 
 @keyframes web-sway {
-  0%, 100% { 
-    transform: rotate(15deg) translate(0, 0) scale(1); 
+  0%, 100% {
+    transform: rotate(15deg) translate(0, 0) scale(1);
     opacity: 0.2;
   }
-  25% { 
-    transform: rotate(18deg) translate(5px, -3px) scale(1.05); 
+  25% {
+    transform: rotate(18deg) translate(5px, -3px) scale(1.05);
     opacity: 0.25;
   }
-  50% { 
-    transform: rotate(12deg) translate(-3px, 5px) scale(0.95); 
+  50% {
+    transform: rotate(12deg) translate(-3px, 5px) scale(0.95);
     opacity: 0.18;
   }
-  75% { 
-    transform: rotate(17deg) translate(4px, 2px) scale(1.02); 
+  75% {
+    transform: rotate(17deg) translate(4px, 2px) scale(1.02);
     opacity: 0.22;
   }
 }
@@ -965,6 +1176,96 @@ body:not(.light-theme) .pumpkin-ghost {
   text-transform: uppercase;
 }
 
+/* 羞耻快照弹窗样式 */
+.shame-photo {
+  position: fixed;
+  z-index: 10001;
+  width: 250px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 3px solid #ff0000;
+  padding: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: shame-photo-appear 0.3s ease-out;
+}
+
+.shame-photo:hover {
+  transform: scale(1.05) rotate(0deg) !important;
+  box-shadow: 0 15px 40px rgba(255, 0, 0, 0.6);
+  z-index: 10002;
+}
+
+.shame-photo img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+.shame-photo-close {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ff0000;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, background 0.2s ease;
+  z-index: 1;
+}
+
+.shame-photo-close:hover {
+  background: #cc0000;
+  transform: scale(1.1);
+}
+
+.shame-photo-enlarged {
+  width: 400px !important;
+  transform: translate(-50%, -50%) scale(1.5) !important;
+  transition: transform 0.5s ease, width 0.5s ease, left 0.5s ease, top 0.5s ease, box-shadow 0.5s ease, border-width 0.5s ease !important;
+  box-shadow: 0 20px 60px rgba(255, 0, 0, 0.8) !important;
+  border-width: 4px !important;
+  z-index: 10003 !important;
+  rotate: 0deg !important;
+}
+
+.shame-photo-enlarged:hover {
+  transform: translate(-50%, -50%) scale(1.55) !important;
+  box-shadow: 0 25px 70px rgba(255, 0, 0, 0.9) !important;
+}
+
+.shame-photo-enlarged .shame-photo-close {
+  width: 36px !important;
+  height: 36px !important;
+  font-size: 24px !important;
+  top: -18px !important;
+  right: -18px !important;
+  z-index: 10004 !important;
+}
+
+@keyframes shame-photo-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.5) rotate(-10deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(var(--rotate, 0deg));
+  }
+}
+
 /* 休息模式 */
 .is-resting #status-bar { background-color: #1e1230; border-bottom-color: var(--warning); }
 .is-resting #timer-display { color: var(--warning); }
@@ -973,7 +1274,7 @@ body:not(.light-theme) .pumpkin-ghost {
 body.light-theme {
   color: #1f2937;
   background:
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 35%, #e2e8f0 70%, #cbd5e1 100%);
+    linear-gradient(180deg, rgba(185, 28, 28, 0.95) 10%, rgba(153, 27, 27, 0.9) 35%, rgba(127, 29, 29, 0.85) 70%, rgba(117, 20, 20, 0.9) 100%);
 }
 body.light-theme::before {
   content: "";
@@ -991,7 +1292,7 @@ body.light-theme::before {
 body.light-theme::after {
   opacity: 0.28;
   color: rgba(185, 28, 28, 0.5);
-  text-shadow: 0 6px 16px rgba(185, 28, 28, 0.3);
+  text-shadow: 0 6px 16px rgba(185, 28, 28, 0.428);
 }
 body.light-theme .ghost-giant {
   display: none; /* Hide dark theme ghosts */
@@ -999,20 +1300,24 @@ body.light-theme .ghost-giant {
 body.light-theme .pumpkin-ghost {
   opacity: 0.25;
   filter: blur(0.4px);
-  text-shadow: 0 12px 30px rgba(185, 28, 28, 0.4);
+  text-shadow: 0 12px 30px rgba(185, 28, 28, 0.528);
 }
 body.light-theme .wave {
   background: radial-gradient(120% 120% at 50% 50%, rgba(185, 28, 28, 0.2), rgba(153, 27, 27, 0.15), rgba(127, 29, 29, 0.1));
   opacity: 0.6;
 }
 body.light-theme #app {
-  background: #ffffff;
+  background: #fef2f2; /* 浅酒红色背景，与消息区域协调 */
   border: clamp(0.5px, 0.1vw, 1px) solid rgba(185, 28, 28, 0.2);
   box-shadow: 0 clamp(5px, 0.5vw, 10px) clamp(20px, 2vw, 40px) rgba(185, 28, 28, 0.15);
 }
+
+body.light-theme #messages {
+  background: #fef2f2; /* 浅酒红色背景，与light主题匹配 */
+}
 body.light-theme .site-header {
   color: #ffffff;
-  background: rgba(185, 28, 28, 0.95);
+  background: rgba(185, 28, 28, 0.447);
   box-shadow: 0 2px 10px rgba(185, 28, 28, 0.2);
 }
 body.light-theme .nav-link {
@@ -1031,7 +1336,7 @@ body.light-theme .nav-link.active {
 }
 body.light-theme .chat-header {
   color: #ffffff;
-  background: #991b1b;
+  background: #751414;
   box-shadow: 0 clamp(1px, 0.1vw, 2px) clamp(4px, 0.4vw, 8px) rgba(185, 28, 28, 0.2);
 }
 body.light-theme .leaderboard-card {
@@ -1044,18 +1349,18 @@ body.light-theme #status-bar {
 }
 body.light-theme .timer-box {
   background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(185, 28, 28, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(121, 44, 193, 0.4); /* 紫色边框 */
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.2);
 }
 body.light-theme #status-label {
-  color: #64748b;
+  color: #584800; /* 紫色 */
 }
 body.light-theme #timer-display {
-  color: #b91c1c;
-  text-shadow: 0 0 10px rgba(185, 28, 28, 0.3);
+  color: #f9cc00; /* 绿色 */
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
 }
 body.light-theme #input-container {
-  background: #ffffff;
+  background: #fef2f2; /* 与消息区域和chatbox背景协调 */
   border-top: clamp(0.5px, 0.1vw, 1px) solid rgba(185, 28, 28, 0.2);
   box-shadow: none;
 }
@@ -1063,31 +1368,33 @@ body.light-theme #user-input {
   color: #1f2937;
 }
 body.light-theme .ai-msg {
-  background: #fef2f2;
-  border: 1px solid rgba(185, 28, 28, 0.2);
-  color: #1f2937;
+  background: rgba(185, 28, 28, 0.08);
+  border: 1px solid rgba(185, 28, 28, 0.25);
+  color: #7f1d1d;
   box-shadow: 0 1px 3px rgba(185, 28, 28, 0.1);
 }
 body.light-theme .user-msg {
   color: #1f2937;
 }
 body.light-theme #pause-btn {
-  border-color: #b91c1c;
-  color: #b91c1c;
+  border-color: #3336ea; /* 紫色 */
+  color: #3336ea;
+  background: rgba(147, 51, 234, 0.1);
 }
 body.light-theme #pause-btn:hover {
-  background: #b91c1c;
+  background: #9333ea; /* 紫色 */
   color: #ffffff;
-  box-shadow: 0 0 15px rgba(185, 28, 28, 0.4);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 }
 body.light-theme #restart-btn {
-  border-color: #dc2626;
-  color: #dc2626;
+  border-color: #10b981; /* 绿色 */
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
 }
 body.light-theme #restart-btn:hover {
-  background: #dc2626;
+  background: #10b981; /* 绿色 */
   color: #ffffff;
-  box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
 }
 body.light-theme #theme-toggle {
   border-color: #b91c1c;
@@ -1105,19 +1412,20 @@ body.light-theme #theme-toggle:hover {
   transform: translateY(-1px);
 }
 body.light-theme #camera-toggle {
-  border-color: #b91c1c;
-  color: #b91c1c;
+  border-color: #eab308; /* 黄色 */
+  color: #eab308;
+  background: rgba(234, 179, 8, 0.1);
 }
 body.light-theme #camera-toggle:hover {
-  background: #b91c1c;
+  background: #eab308; /* 黄色 */
   color: #ffffff;
-  box-shadow: 0 0 15px rgba(185, 28, 28, 0.4);
+  box-shadow: 0 0 15px rgba(234, 179, 8, 0.5);
 }
 body.light-theme #camera-toggle.active {
-  background: #b91c1c;
+  background: #eab308; /* 黄色 */
   color: #ffffff;
-  box-shadow: 0 0 15px rgba(185, 28, 28, 0.4);
+  box-shadow: 0 0 15px rgba(234, 179, 8, 0.5);
 }
 body.light-theme #camera-status {
-  color: #64748b;
+  color: #000000; /* 紫色，与status-label协调 */
 }

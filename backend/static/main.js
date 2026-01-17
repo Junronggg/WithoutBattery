@@ -712,7 +712,7 @@ function takeShamePhoto() {
         // 添加主要水印文字
         const mainText = '😴 I WAS SLEEPING';
         const timeText = `@ ${timeStr} ${dateStr}`;
-        const mainText = 'START WORKING NOW!!!';
+        const subText = 'START WORKING NOW!!!';
 
         // 绘制文字（带描边效果）
         const centerX = canvas.width / 2;
@@ -743,10 +743,10 @@ function takeShamePhoto() {
         ctx.fillText(timeText, centerX, centerY);
 
         // 中文文字
-        ctx.font = `bold ${fontSize3}px Arial`;
+        ctx.font = `bold ${fontSize1}px Arial`;
         ctx.fillStyle = 'rgba(255, 0, 0, 1)';
-        ctx.strokeText(chineseText, centerX, centerY + 50);
-        ctx.fillText(chineseText, centerX, centerY + 50);
+        ctx.strokeText(subText, centerX, centerY + 50);
+        ctx.fillText(subText, centerX, centerY + 50);
 
         // 将canvas转换为图片URL（不下载，只用于显示）
         const imageUrl = canvas.toDataURL('image/png');
