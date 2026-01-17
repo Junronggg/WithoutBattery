@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procrastination Chat AI</title>
+    <!-- Reference CSS from static folder -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="warning-overlay" style="display: none;">
+        <div class="warning-content">
+            <h1>⚠️ Warning: Detected slacking off behavior ⚠️</h1>
+            <p>Get moving right now!</p>
+        </div>
+    </div>
+    <header class="site-header">
+        <div class="brand">
+            <span class="brand-icon"></span>
+            <span class="brand-text">WithoutBattery</span>
+        </div>
+        <nav class="top-nav">
+            <a class="nav-link" href="#home">Home</a>
+            <a class="nav-link" href="#leaderboard-section">Leaderboard</a>
+        </nav>
+        <button id="theme-toggle" class="lang-btn" aria-label="Toggle theme">
+            <span class="lang-icon">🌐</span>
+            <span>Language</span>
+        </button>
+    </header>
+
+    <div class="ghost-backdrop" aria-hidden="true">
+        <!-- Dark theme: Ghosts and waves -->
+        <div class="ghost-giant">👻</div>
+        <div class="ghost-giant ghost-2">👻</div>
+        <div class="ghost-giant ghost-3">👻</div>
+        <div class="wave wave-1"></div>
+        <div class="wave wave-2"></div>
+        <div class="wave wave-3"></div>
+        
+        <!-- Dark theme: Spiders and webs -->
+        <div class="spider-web web-1"></div>
+        <div class="spider-web web-2"></div>
+        <div class="spider-web web-3"></div>
+        <div class="spider spider-1">🕷️</div>
+        <div class="spider spider-2">🕷️</div>
+        <div class="spider spider-3">🕷️</div>
+        
+        <!-- Light theme: Pumpkins and ghosts -->
+        <div class="pumpkin pumpkin-1">🎃</div>
+        <div class="pumpkin pumpkin-2">🎃</div>
+        <div class="pumpkin pumpkin-3">🎃</div>
+        <div class="pumpkin-ghost pumpkin-ghost-1">👻</div>
+        <div class="pumpkin-ghost pumpkin-ghost-2">👻</div>
+    </div>
+
+    <main class="page">
+        <section id="home" class="section">
+            <div id="app">
+                <!-- Border crawlers -->
+                <div class="border-crawler spider-crawler">🕷️</div>
+                <div class="border-crawler skull-crawler">☠️</div>
+                
+                <header class="chat-header">
+                    <div class="chat-header-left">
+                        <span class="status-dot"></span>
+                        <h1>AI Assistant</h1>
+                    </div>
+                    <button class="expand-btn" aria-label="Expand chat">⛶</button>
+                </header>
+                <div id="chat-container">
+                    <div id="messages"></div>
+                    <div id="input-container">
+                        <input type="text" id="user-input" placeholder="Type your question...">
+                        <button id="send-btn">Send</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="leaderboard-section" class="section">
+            <div id="leaderboard" class="leaderboard-card">
+                <h2>ranking list</h2>
+                <ul id="leaderboard-list"></ul>
+                <div class="leaderboard-note">Data is only saved in the local browser</div>
+            </div>
+        </section>
+    </main>
+
+    <div id="floating-timer" aria-label="Floating timer">
+        <div id="status-bar">
+            <div class="timer-box">
+                <span id="status-label">🔥 WORKING</span>
+                <span id="timer-display">00:00</span>
+            </div>
+            <div class="button-group">
+                <button id="camera-toggle">CAMERA</button>
+                <button id="pause-btn">PAUSE</button>
+                <button id="restart-btn">RESTART</button>
+            </div>
+            <div id="camera-status">Camera off</div>
+        </div>
+    </div>
+
+    <video id="camera-feed" autoplay playsinline muted></video>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+
+</body>
+</html>

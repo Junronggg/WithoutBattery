@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
 from openai import OpenAI
@@ -58,6 +58,11 @@ def get_question_guidance(question):
             "reason": "Could not parse guidance",
             "tips": ["Make your question specific and actionable."]
         }
+
+# Serve the chat page
+@app.route("/")
+def home():
+    return render_template("index.html")
 
 # --- API route ---
 @app.route("/ask", methods=["POST"])
