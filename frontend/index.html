@@ -14,12 +14,18 @@
         </div>
     </div>
     <header class="site-header">
-        <div class="brand">WithoutBattery</div>
+        <div class="brand">
+            <span class="brand-icon"></span>
+            <span class="brand-text">WithoutBattery</span>
+        </div>
         <nav class="top-nav">
             <a class="nav-link" href="#home">Home</a>
             <a class="nav-link" href="#leaderboard-section">Leaderboard</a>
         </nav>
-        <button id="theme-toggle" aria-label="Toggle theme">LIGHT</button>
+        <button id="theme-toggle" class="lang-btn" aria-label="Toggle theme">
+            <span class="lang-icon">🌐</span>
+            <span>Language</span>
+        </button>
     </header>
 
     <div class="ghost-backdrop" aria-hidden="true">
@@ -50,8 +56,16 @@
     <main class="page">
         <section id="home" class="section">
             <div id="app">
+                <!-- Border crawlers -->
+                <div class="border-crawler spider-crawler">🕷️</div>
+                <div class="border-crawler skull-crawler">☠️</div>
+                
                 <header class="chat-header">
-                    <h1>AI Chat</h1>
+                    <div class="chat-header-left">
+                        <span class="status-dot"></span>
+                        <h1>AI Assistant</h1>
+                    </div>
+                    <button class="expand-btn" aria-label="Expand chat">⛶</button>
                 </header>
                 <div id="chat-container">
                     <div id="messages"></div>
