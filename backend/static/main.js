@@ -515,7 +515,7 @@ async function sendMessage() {
         const res = await fetch("/ask", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt: msg })  // Make sure it matches app.py key
+            body: JSON.stringify({ question: msg })  // Make sure it matches app.py key
         });
 
         const data = await res.json();
