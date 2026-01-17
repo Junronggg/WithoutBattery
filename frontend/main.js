@@ -49,6 +49,83 @@ setInterval(() => {
     }
 }, 1000);
 
+// --- Ranking List 功能（提前定义，供其他函数使用）---
+const leaderboardList = document.getElementById("leaderboard-list");
+
+// 获取今天的日期字符串 (YYYY-MM-DD)
+function getTodayDate() {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+}
+
+// 格式化日期显示 (MM-DD)
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return `${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+}
+
+// 获取所有工作记录
+function getWorkRecords() {
+    const stored = localStorage.getItem('workRecords');
+    return stored ? JSON.parse(stored) : {};
+}
+
+// 保存当天的工作时长
+function saveTodayWorkTime() {
+    const today = getTodayDate();
+    const records = getWorkRecords();
+
+    // 如果今天已经有记录，取较大值（保留最长工作时间）
+    if (records[today]) {
+        records[today] = Math.max(records[today], totalWorkSeconds);
+    } else {
+        records[today] = totalWorkSeconds;
+    }
+
+    localStorage.setItem('workRecords', JSON.stringify(records));
+    updateLeaderboard();
+}
+
+// 更新排行榜显示
+function updateLeaderboard() {
+    const records = getWorkRecords();
+    const sortedDates = Object.keys(records).sort((a, b) => {
+        // 按日期降序排列（最新的在前）
+        return new Date(b) - new Date(a);
+    });
+
+    leaderboardList.innerHTML = '';
+
+    if (sortedDates.length === 0) {
+        const emptyItem = document.createElement('li');
+        emptyItem.className = 'leaderboard-item';
+        emptyItem.innerHTML = '<span>No record yet</span><span>start working!</span>';
+        leaderboardList.appendChild(emptyItem);
+        return;
+    }
+
+    // 显示最近30天的记录
+    sortedDates.slice(0, 30).forEach((date, index) => {
+        const item = document.createElement('li');
+        item.className = 'leaderboard-item';
+        const timeStr = formatTime(records[date]);
+        const dateStr = formatDate(date);
+        const isToday = date === getTodayDate();
+
+        item.innerHTML = `
+            <span>${isToday ? '📅 Total' : dateStr}</span>
+            <span>${timeStr}</span>
+        `;
+
+        if (isToday) {
+            item.style.background = 'rgba(255, 122, 0, 0.2)';
+            item.style.border = '1px solid rgba(255, 122, 0, 0.4)';
+        }
+
+        leaderboardList.appendChild(item);
+    });
+}
+
 // --- 按钮逻辑 ---
 let isDraggingTimer = false;
 let dragOffsetX = 0;
@@ -348,6 +425,10 @@ pauseBtn.addEventListener("click", () => {
 
 restartBtn.addEventListener("click", () => {
     if (confirm("Are you sure you want to restart the timing？")) {
+        // 在重置前保存当前的工作时长
+        if (totalWorkSeconds > 0) {
+            saveTodayWorkTime();
+        }
         totalWorkSeconds = 0;
         timerDisplay.innerText = "00:00";
         lastActivityAt = Date.now();
@@ -478,15 +559,33 @@ async function sendMessage() {
         addMessage(getAIResponse(msg), "ai-msg");
     }
 }
-
 function addMessage(text, className) {
     const msgDiv = document.createElement("div");
     msgDiv.className = `message ${className}`;
     msgDiv.innerText = text;
     messagesContainer.appendChild(msgDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    // 确保滚动到底部，使用requestAnimationFrame确保DOM已更新
+    requestAnimationFrame(() => {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    });
 }
-
 function getAIResponse(q) {
     return q.split(" ").length < 3 ? "I refuse to answer 😏" : "This is a proper AI response 👍";
 }
+
+// 每分钟保存一次当前工作时长
+setInterval(() => {
+    if (!isPaused && !isPunishing && totalWorkSeconds > 0) {
+        saveTodayWorkTime();
+    }
+}, 60000); // 每60秒保存一次
+
+// 页面加载时显示排行榜
+updateLeaderboard();
+
+// 页面关闭或刷新前保存
+window.addEventListener('beforeunload', () => {
+    if (totalWorkSeconds > 0) {
+        saveTodayWorkTime();
+    }
+});
