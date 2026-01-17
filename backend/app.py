@@ -19,25 +19,32 @@ CORS(app)
 def get_question_guidance(question):
     """
     Uses GPT to check if the question is good or bad, and provide tips and suggested improved questions.
-    """
-    prompt = f"""
-    You are a strict assistant that only allows good questions.
-    A good question must be:
-      - Specific and detailed
-      - Clear and actionable
-      - Include context, audience, or desired format if needed
-
-    For the user question: "{question}"
-    1. Decide if it is GOOD or BAD.
-    2. If BAD, explain briefly why it is too vague or general.
-    3. Provide 1-2 concrete tips to improve it, with examples of well-phrased questions.
-    Respond in strict JSON format like:
-    {{
+    Returns a dict like:
+    {
         "status": "GOOD" or "BAD",
         "reason": "...",
         "tips": ["...", "..."]
-    }}
+    }
     """
+    prompt = f"""
+You are a strict assistant that only allows good questions.
+A good question must be:
+  - Specific and detailed
+  - Clear and actionable
+  - Include context, audience, or desired format if needed
+
+For the user question: "{question}"
+1. Decide if it is GOOD or BAD.
+2. If BAD, explain briefly why it is too vague or general.
+3. Provide 1-2 concrete tips to improve it, with examples of well-phrased questions.
+
+Respond **strictly in JSON only**, no extra text. Example:
+{{
+  "status": "GOOD",
+  "reason": "",
+  "tips": []
+}}
+"""
 
     try:
         response = client.chat.completions.create(
@@ -48,8 +55,14 @@ def get_question_guidance(question):
         )
 
         guidance_text = response.choices[0].message.content
-        guidance_json = json.loads(guidance_text)  # parse JSON
+
+        # Strip extra text, keep only JSON
+        guidance_text = guidance_text.strip()
+        start = guidance_text.find("{")
+        end = guidance_text.rfind("}") + 1
+        guidance_json = json.loads(guidance_text[start:end])
         return guidance_json
+
     except Exception as e:
         print("Error getting guidance:", e)
         # fallback if JSON fails
