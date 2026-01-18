@@ -679,15 +679,11 @@ function onFaceResults(results) {
     const rightEAR = computeEAR(landmarks, rightEye);
     const ear = (leftEAR + rightEAR) / 2;
 
-    // 检查是否在冷却期内（嘴巴张开取消警告后的冷却期）
-    const now = Date.now();
-    const inCooldown = now < mouthOpenCooldownUntil;
-
     // 眼睛检测
     if (ear < EAR_THRESHOLD) {
         eyeClosedFrames += 1;
         setCameraStatus("Eyes closed", true);
-        if (eyeClosedFrames >= EYE_CLOSED_FRAMES && !inCooldown) {
+        if (eyeClosedFrames >= EYE_CLOSED_FRAMES) {
             triggerPunishment("eyes");
             // 触发羞耻快照（只在第一次触发时拍照，且摄像头已开启）
             if (!hasTakenShamePhoto && isCameraOn && cameraFeed && cameraFeed.readyState === 4) {
