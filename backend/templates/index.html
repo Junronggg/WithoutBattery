@@ -18,10 +18,15 @@
             <span class="brand-icon"></span>
             <span class="brand-text">WithoutBattery</span>
             <button id="crazy-btn" class="crazy-emoji-btn" aria-label="Crazy mode">👹</button>
+            <span id="countries-count" class="countries-badge" title="Unlocked countries">🌍 <span id="countries-number">0</span></span>
+        </div>
+        <div class="kpi-setting">
+            <label for="kpi-input">KPI:</label>
+            <input type="number" id="kpi-input" min="1" value="30" placeholder="30">
+            <button id="set-kpi-btn">SET</button>
         </div>
         <nav class="top-nav">
             <a class="nav-link" href="#home">Home</a>
-            <a class="nav-link" href="#leaderboard-section">Leaderboard</a>
         </nav>
         <button id="theme-toggle" class="lang-btn" aria-label="Toggle theme">
             <span class="lang-icon">🌐</span>
@@ -60,6 +65,8 @@
                 <!-- Border crawlers -->
                 <div class="border-crawler spider-crawler">🕷️</div>
                 <div class="border-crawler skull-crawler">☠️</div>
+                <!-- Resize handle -->
+                <div class="app-resize-handle"></div>
 
                 <header class="chat-header">
                     <div class="chat-header-left">
@@ -77,15 +84,15 @@
                 </div>
             </div>
         </section>
-
-        <section id="leaderboard-section" class="section">
-            <div id="leaderboard" class="leaderboard-card">
-                <h2>ranking list</h2>
-                <ul id="leaderboard-list"></ul>
-                <div class="leaderboard-note">Data is only saved in the local browser</div>
-            </div>
-        </section>
     </main>
+
+    <!-- 固定在右侧的排行榜 -->
+    <div id="leaderboard" class="leaderboard-card">
+        <div class="leaderboard-resize-handle"></div>
+        <h2>ranking list</h2>
+        <ul id="leaderboard-list"></ul>
+        <div class="leaderboard-note">Data is only saved in the local browser</div>
+    </div>
 
     <div id="floating-timer" aria-label="Floating timer">
         <div id="status-bar">
